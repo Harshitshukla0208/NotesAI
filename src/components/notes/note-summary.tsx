@@ -1,10 +1,11 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Wand2 } from 'lucide-react'
 import { useSummarize } from '@/hooks/use-summarize'
-import { toast } from "sonner"
+import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 
 interface NoteSummaryProps {
@@ -19,30 +20,31 @@ export default function NoteSummary({
     onSummaryGenerated
 }: NoteSummaryProps) {
     const { summarizeText, loading } = useSummarize()
-    // const { toast } = useToast()
+    const [localSummary, setLocalSummary] = useState(summary)
+
+    useEffect(() => {
+        setLocalSummary(summary)
+    }, [summary])
 
     const handleGenerateSummary = async () => {
         if (!content.trim()) {
-            toast({
-                title: "Cannot summarize",
+            toast("Cannot summarize", {
                 description: "Note content is empty",
-                variant: "destructive"
             })
             return
         }
 
         try {
-            const generatedSummary = await summarizeText(content)
-            onSummaryGenerated(generatedSummary)
-            toast({
-                title: "Summary generated",
+            const generated = await summarizeText(content)
+            setLocalSummary(generated)
+            onSummaryGenerated(generated)
+
+            toast("Summary generated", {
                 description: "AI has created a summary of your note"
             })
-        } catch (error) {
-            toast({
-                title: "Failed to generate summary",
+        } catch {
+            toast("Failed to generate summary", {
                 description: "Please try again later",
-                variant: "destructive"
             })
         }
     }
@@ -53,7 +55,7 @@ export default function NoteSummary({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
         >
-            <Card>
+            <Card className="overflow-hidden">
                 <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                         <CardTitle className="text-lg">Summary</CardTitle>
@@ -61,21 +63,22 @@ export default function NoteSummary({
                             variant="outline"
                             size="sm"
                             onClick={handleGenerateSummary}
-                            disabled={loading}
+                            disabled={loading || !content.trim()}
                             className="gap-1"
                         >
                             <Wand2 className="h-4 w-4" />
-                            {loading ? "Generating..." : "Regenerate"}
+                            {loading ? 'Generating...' : 'Regenerate'}
                         </Button>
                     </div>
                 </CardHeader>
+
                 <CardContent>
-                    {summary ? (
-                        <p className="text-sm">{summary}</p>
+                    {localSummary ? (
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{localSummary}</p>
                     ) : (
-                        <div className="text-sm text-muted-foreground italic">
+                        <p className="text-sm text-muted-foreground italic">
                             No summary available. Generate one using AI.
-                        </div>
+                        </p>
                     )}
                 </CardContent>
             </Card>

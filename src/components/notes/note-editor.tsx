@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useNotes } from '@/hooks/use-notes'
 import { useSummarize } from '@/hooks/use-summarize'
-import { useToast } from '@/components/ui/use-toast'
+import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Wand2, Save, ArrowLeft, Code, FileText, Share2 } from 'lucide-react'
@@ -18,12 +18,19 @@ import { codeLanguageOptions } from '@/lib/utils'
 import CodeEditor from './code-editor'
 
 interface NoteEditorProps {
-    noteId?: string
+    noteId?: string;
+    onContentChange?: (content: string) => void;
+    onSummaryChange?: (summary: string) => void;
+    externalSummary?: string;
 }
 
-export default function NoteEditor({ noteId }: NoteEditorProps) {
+export default function NoteEditor({ 
+    noteId,
+    onContentChange,
+    onSummaryChange,
+    externalSummary
+}: NoteEditorProps) {
     const router = useRouter()
-    const { toast } = useToast()
     const { createNote, updateNote } = useNotes()
     const { summarizeText, loading: summarizeLoading } = useSummarize()
 
@@ -37,8 +44,6 @@ export default function NoteEditor({ noteId }: NoteEditorProps) {
     const [editorTab, setEditorTab] = useState('edit')
 
     const isEditMode = !!noteId
-
-    // If in edit mode, fetch the note data
     const { data: existingNote, isLoading } = useNotes().getNoteById(noteId || '')
 
     useEffect(() => {
@@ -52,12 +57,26 @@ export default function NoteEditor({ noteId }: NoteEditorProps) {
         }
     }, [existingNote, isEditMode])
 
+    useEffect(() => {
+        if (externalSummary !== undefined) {
+            setSummary(externalSummary)
+        }
+    }, [externalSummary])
+
+    const handleContentChange = (newContent: string) => {
+        setContent(newContent)
+        onContentChange?.(newContent)
+    }
+
+    const handleSummaryChange = (newSummary: string) => {
+        setSummary(newSummary)
+        onSummaryChange?.(newSummary)
+    }
+
     const handleSave = async () => {
         if (!title.trim()) {
-            toast({
-                title: "Title required",
+            toast("Title required", {
                 description: "Please add a title for your note",
-                variant: "destructive"
             })
             return
         }
@@ -76,23 +95,19 @@ export default function NoteEditor({ noteId }: NoteEditorProps) {
 
             if (isEditMode && noteId) {
                 await updateNote({ id: noteId, ...noteData })
-                toast({
-                    title: "Note updated",
+                toast("Note updated", {
                     description: "Your changes have been saved"
                 })
             } else {
                 await createNote(noteData)
-                toast({
-                    title: "Note created",
+                toast("Note created", {
                     description: "Your new note has been saved"
                 })
                 router.push('/dashboard')
             }
-        } catch (error) {
-            toast({
-                title: "Error saving note",
+        } catch {
+            toast("Error saving note", {
                 description: "There was a problem saving your note",
-                variant: "destructive"
             })
         } finally {
             setIsSaving(false)
@@ -101,26 +116,21 @@ export default function NoteEditor({ noteId }: NoteEditorProps) {
 
     const handleGenerateSummary = async () => {
         if (!content.trim()) {
-            toast({
-                title: "Empty content",
+            toast("Empty content", {
                 description: "Add some content before generating a summary",
-                variant: "destructive"
             })
             return
         }
 
         try {
             const generatedSummary = await summarizeText(content)
-            setSummary(generatedSummary)
-            toast({
-                title: "Summary generated",
+            handleSummaryChange(generatedSummary)
+            toast("Summary generated", {
                 description: "AI summary has been created"
             })
-        } catch (error) {
-            toast({
-                title: "Summary failed",
+        } catch {
+            toast("Summary failed", {
                 description: "Unable to generate summary at this time",
-                variant: "destructive"
             })
         }
     }
@@ -137,18 +147,9 @@ export default function NoteEditor({ noteId }: NoteEditorProps) {
     }
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-6"
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             <div className="flex items-center justify-between">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="gap-1"
-                    onClick={() => router.back()}
-                >
+                <Button variant="ghost" size="sm" className="gap-1" onClick={() => router.back()}>
                     <ArrowLeft className="h-4 w-4" />
                     Back
                 </Button>
@@ -226,7 +227,7 @@ export default function NoteEditor({ noteId }: NoteEditorProps) {
                         {isCode ? (
                             <CodeEditor
                                 value={content}
-                                onChange={setContent}
+                                onChange={handleContentChange}
                                 language={language}
                                 className="min-h-[400px] font-mono text-sm"
                             />
@@ -234,7 +235,7 @@ export default function NoteEditor({ noteId }: NoteEditorProps) {
                             <Textarea
                                 placeholder="Write your note content here..."
                                 value={content}
-                                onChange={(e) => setContent(e.target.value)}
+                                onChange={(e) => handleContentChange(e.target.value)}
                                 className="min-h-[400px]"
                             />
                         )}
@@ -274,7 +275,7 @@ export default function NoteEditor({ noteId }: NoteEditorProps) {
                         id="summary"
                         placeholder="Note summary will appear here..."
                         value={summary}
-                        onChange={(e) => setSummary(e.target.value)}
+                        onChange={(e) => handleSummaryChange(e.target.value)}
                         className="h-24"
                     />
                 </div>

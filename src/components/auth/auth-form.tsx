@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '@/providers/auth-provider'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { toast } from "sonner"
+import { toast } from 'sonner'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 
@@ -17,7 +17,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const { signIn, signUp } = useAuth()
-    // const { toast } = useToast()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -34,16 +33,17 @@ export default function AuthForm({ mode }: AuthFormProps) {
             }
 
             if (mode === 'signup') {
-                toast({
-                    title: "Account created",
-                    description: "Please check your email to verify your account"
+                toast("Account created", {
+                    description: "Please check your email to verify your account",
+                })
+            } else {
+                toast("Signed in successfully", {
+                    description: "Welcome back!",
                 })
             }
         } catch (error: any) {
-            toast({
-                title: "Authentication error",
+            toast("Authentication error", {
                 description: error?.message || "Failed to authenticate",
-                variant: "destructive"
             })
         } finally {
             setLoading(false)
@@ -64,15 +64,17 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 <p className="mt-2 text-sm text-muted-foreground">
                     {mode === 'signin'
                         ? "Enter your credentials to access your notes"
-                        : "Sign up to start creating and organizing your notes"
-                    }
+                        : "Sign up to start creating and organizing your notes"}
                 </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-4">
                     <div className="space-y-2">
-                        <label htmlFor="email" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        <label
+                            htmlFor="email"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
                             Email
                         </label>
                         <Input
@@ -86,9 +88,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
                         />
                     </div>
 
-          // src/components/auth/auth-form.tsx (completion)
                     <div className="space-y-2">
-                        <label htmlFor="password" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        <label
+                            htmlFor="password"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
                             Password
                         </label>
                         <Input
@@ -104,10 +108,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 </div>
 
                 <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ?
-                        (mode === 'signin' ? 'Signing in...' : 'Signing up...') :
-                        (mode === 'signin' ? 'Sign in' : 'Sign up')
-                    }
+                    {loading
+                        ? mode === 'signin'
+                            ? 'Signing in...'
+                            : 'Signing up...'
+                        : mode === 'signin'
+                            ? 'Sign in'
+                            : 'Sign up'}
                 </Button>
             </form>
 

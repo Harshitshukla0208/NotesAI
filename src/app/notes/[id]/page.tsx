@@ -1,26 +1,52 @@
 'use client'
-import { useEffect } from 'react'
+
+import { use, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { use } from 'react' // Add this import
 import { useAuth } from '@/providers/auth-provider'
 import { useNotes } from '@/hooks/use-notes'
 import NoteEditor from '@/components/notes/note-editor'
 import NoteSummary from '@/components/notes/note-summary'
 
-export default function EditNote({ params }: { params: { id: string } }) {
-    const resolvedParams = use(params) // Unwrap the params Promise
-    const id = resolvedParams.id // Get the id from resolved params
-    
+// Define proper types for the async params
+type PageParams = {
+    params: Promise<{
+        id: string
+    }>
+}
+
+export default function EditNote({ params }: PageParams) {
+    // Unwrap the params using React.use()
+    const { id } = use(params)
+
     const { user, loading: authLoading } = useAuth()
     const router = useRouter()
-    const { data: note, isLoading: noteLoading, error } = useNotes().getNoteById(id)
-    
+
+    const { getNoteById, updateNote } = useNotes()
+    const { data: note, isLoading: noteLoading, error } = getNoteById(id)
+
+    const [currentContent, setCurrentContent] = useState('')
+    const [currentSummary, setCurrentSummary] = useState('')
+
+    useEffect(() => {
+        if (note) {
+            setCurrentContent(note.content || '')
+            setCurrentSummary(note.summary || '')
+        }
+    }, [note])
+
     useEffect(() => {
         if (!authLoading && !user) {
             router.push('/auth/signin')
         }
     }, [user, authLoading, router])
-    
+
+    const handleSummaryGenerated = (summary: string) => {
+        setCurrentSummary(summary)
+        if (note?.id) {
+            updateNote({ id: note.id, summary })
+        }
+    }
+
     if (authLoading || noteLoading || !user) {
         return (
             <div className="flex items-center justify-center h-96">
@@ -31,7 +57,7 @@ export default function EditNote({ params }: { params: { id: string } }) {
             </div>
         )
     }
-    
+
     if (error || !note) {
         return (
             <div className="text-center py-16">
@@ -48,22 +74,23 @@ export default function EditNote({ params }: { params: { id: string } }) {
             </div>
         )
     }
-    
-    const handleSummaryUpdate = (summary: string) => {
-        // Update note with new summary
-    }
-    
+
     return (
         <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2">
-                    <NoteEditor noteId={id} />
+                    <NoteEditor
+                        noteId={id}
+                        onContentChange={setCurrentContent}
+                        onSummaryChange={setCurrentSummary}
+                        externalSummary={currentSummary}
+                    />
                 </div>
                 <div>
                     <NoteSummary
-                        content={note.content}
-                        summary={note.summary || ''}
-                        onSummaryGenerated={handleSummaryUpdate}
+                        content={currentContent}
+                        summary={currentSummary}
+                        onSummaryGenerated={handleSummaryGenerated}
                     />
                 </div>
             </div>

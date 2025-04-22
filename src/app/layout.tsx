@@ -6,6 +6,7 @@ import QueryProvider from '@/providers/query-provider'
 import { ThemeProvider } from '@/providers/theme-provider'
 import Header from '@/components/layout/header'
 import Footer from '@/components/layout/footer'
+import { Toaster } from "@/components/ui/sonner"
 
 export const metadata: Metadata = {
   title: 'NotesAI - Smart Note Taking App',
@@ -26,6 +27,7 @@ export default function RootLayout({
               <div className="flex min-h-screen flex-col">
                 <Header />
                 <main className="flex-1">{children}</main>
+                <Toaster />
                 <Footer />
               </div>
             </AuthProvider>

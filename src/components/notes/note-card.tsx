@@ -1,33 +1,41 @@
 'use client'
 
-import { Note } from '@/lib/supabase/client'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatDate, truncateText, generateShareableUrl } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Edit, Trash, Code, Share2, FileText, Copy } from 'lucide-react'
-import { Input } from '@/components/ui/input' // Add missing import
-import Link from 'next/link'
-import { useNotes } from '@/hooks/use-notes'
-import { toast } from "sonner"
-import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter, DialogHeader } from '@/components/ui/dialog'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { toast } from 'sonner'
+
+import { Note } from '@/lib/supabase/client'
+import { useNotes } from '@/hooks/use-notes'
+import { formatDate, truncateText, generateShareableUrl } from '@/lib/utils'
+
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle
+} from '@/components/ui/dialog'
+
+import { Edit, Trash, Code, Share2, FileText, Copy } from 'lucide-react'
 
 interface NoteCardProps {
     note: Note
 }
 
 export default function NoteCard({ note }: NoteCardProps) {
-    const { deleteNote, updateNote } = useNotes() // Add updateNote from useNotes
-    // const { toast } = useToast()
+    const { deleteNote, updateNote } = useNotes()
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
     const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
 
     const handleDelete = () => {
         deleteNote(note.id)
         setIsDeleteDialogOpen(false)
-        toast({
-            title: "Note deleted",
+        toast("Note deleted", {
             description: "Your note has been permanently removed"
         })
     }
@@ -35,9 +43,16 @@ export default function NoteCard({ note }: NoteCardProps) {
     const handleCopyShareLink = () => {
         const shareUrl = generateShareableUrl(note.id)
         navigator.clipboard.writeText(shareUrl)
-        toast({
-            title: "Link copied",
+        toast("Link copied", {
             description: "Share link has been copied to clipboard"
+        })
+        setIsShareDialogOpen(false)
+    }
+
+    const handleMakePublic = () => {
+        updateNote({ id: note.id, is_public: true })
+        toast("Note is now public", {
+            description: "Anyone with the link can now view this note"
         })
         setIsShareDialogOpen(false)
     }
@@ -130,9 +145,9 @@ export default function NoteCard({ note }: NoteCardProps) {
                     <DialogHeader>
                         <DialogTitle>Share Note</DialogTitle>
                         <DialogDescription>
-                            {note.is_public ?
-                                "Anyone with the link can view this note." :
-                                "Make this note public to share it."}
+                            {note.is_public
+                                ? "Anyone with the link can view this note."
+                                : "Make this note public to share it."}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -152,14 +167,7 @@ export default function NoteCard({ note }: NoteCardProps) {
 
                     <DialogFooter>
                         {!note.is_public && (
-                            <Button onClick={() => {
-                                updateNote({ id: note.id, is_public: true })
-                                toast({
-                                    title: "Note is now public",
-                                    description: "Anyone with the link can now view this note"
-                                })
-                                setIsShareDialogOpen(false) // Add this to close dialog after making public
-                            }}>
+                            <Button onClick={handleMakePublic}>
                                 Make Public
                             </Button>
                         )}

@@ -1,5 +1,4 @@
 'use client'
-
 import { useRef, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -29,34 +28,35 @@ export default function CodeEditor({
     useEffect(() => {
         if (readOnly || !textareaRef.current) return
 
-        const handleTab = (e: KeyboardEvent) => {
-            if (e.key === 'Tab' && textareaRef.current === document.activeElement) {
-                e.preventDefault()
+        const textarea = textareaRef.current
 
-                const start = textareaRef.current.selectionStart
-                const end = textareaRef.current.selectionEnd
+        const handleTab = (e: KeyboardEvent) => {
+            if (e.key === 'Tab' && document.activeElement === textarea) {
+                e.preventDefault()
+                const start = textarea.selectionStart
+                const end = textarea.selectionEnd
 
                 // Insert tab at cursor position
                 const newValue =
                     value.substring(0, start) + '  ' + value.substring(end)
-
                 if (onChange) {
                     onChange(newValue)
                 }
 
                 // Move cursor after tab
                 setTimeout(() => {
-                    if (textareaRef.current) {
-                        textareaRef.current.selectionStart = start + 2
-                        textareaRef.current.selectionEnd = start + 2
+                    if (textarea) {
+                        textarea.selectionStart = start + 2
+                        textarea.selectionEnd = start + 2
                     }
                 }, 0)
             }
         }
 
-        textareaRef.current.addEventListener('keydown', handleTab)
+        textarea.addEventListener('keydown', handleTab)
+
         return () => {
-            textareaRef.current?.removeEventListener('keydown', handleTab)
+            textarea?.removeEventListener('keydown', handleTab)
         }
     }, [value, onChange, readOnly])
 
