@@ -94,9 +94,12 @@ For more details on deployment, check out the [Vercel deployment documentation](
 3. **AI Summarization**: After writing a note, you can click the "Summarize" button to get an AI-generated summary of the note.
 
 ## Screenshots
+![image](https://github.com/user-attachments/assets/8e920319-ce3b-4641-a66f-f83db74e05f2)
+![image](https://github.com/user-attachments/assets/06d17d0c-d8d3-45e2-ab55-11351f7f4bdb)
+![image](https://github.com/user-attachments/assets/624900d3-755f-4c2a-99cc-ccc145bb9a91)
+![image](https://github.com/user-attachments/assets/1f95ce8d-62a7-4e98-9016-6c49c65a6695)
 
-![App Screenshot 1](url_to_screenshot_1)
-![App Screenshot 2](url_to_screenshot_2)
+
 
 ## Contributing
 If you'd like to contribute to this project, feel free to fork the repository, submit a pull request, or open an issue with suggestions or bug reports.
