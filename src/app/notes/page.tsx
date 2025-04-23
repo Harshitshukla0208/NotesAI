@@ -1,6 +1,5 @@
 // src/app/notes/page.tsx
 'use client'
-
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/providers/auth-provider'
@@ -19,9 +18,13 @@ export default function Notes() {
     if (loading || !user) return null
 
     return (
-        <div className="space-y-6">
-            <h1 className="text-3xl font-bold tracking-tight">All Notes</h1>
-            <NoteList />
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
+            <div className="max-w-4xl mx-auto space-y-8">
+                <div className="text-center md:text-left">
+                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight">All Notes</h1>
+                </div>
+                <NoteList />
+            </div>
         </div>
     )
 }

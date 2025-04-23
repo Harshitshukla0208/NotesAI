@@ -1,19 +1,17 @@
 // src/app/settings/page.tsx
 'use client'
-
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/providers/auth-provider'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { useToast } from '@/components/ui/use-toast'
+import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 
 export default function Settings() {
     const { user, loading, signOut } = useAuth()
     const router = useRouter()
-    const { toast } = useToast()
     const [email, setEmail] = useState('')
 
     useEffect(() => {
@@ -26,86 +24,102 @@ export default function Settings() {
 
     const handleUpdateProfile = (e: React.FormEvent) => {
         e.preventDefault()
-        toast({
-            title: "Not implemented",
+        toast("Not implemented", {
             description: "This feature is not yet available",
         })
     }
 
     const handleDeleteAccount = () => {
-        toast({
-            title: "Not implemented",
+        toast("Not implemented", {
             description: "This feature is not yet available",
         })
+    }
+
+    const handleSignOut = async () => {
+        try {
+            await signOut()
+            toast("Signed out successfully", {
+                description: "You have been signed out of your account",
+            })
+        } catch (error: any) {
+            toast("Authentication error", {
+                description: error?.message || "Failed to sign out",
+            })
+        }
     }
 
     if (loading || !user) return null
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-6"
-        >
-            <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-
-            <div className="grid gap-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Profile</CardTitle>
-                        <CardDescription>
-                            Manage your profile information
-                        </CardDescription>
-                    </CardHeader>
-                    <form onSubmit={handleUpdateProfile}>
-                        <CardContent>
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <label htmlFor="email" className="text-sm font-medium">
-                                        Email
-                                    </label>
-                                    <Input
-                                        id="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        disabled
-                                    />
+        <div className="flex justify-center w-full px-4 py-8">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="w-full max-w-3xl space-y-8"
+            >
+                <h1 className="text-3xl font-bold tracking-tight text-center md:text-left">Settings</h1>
+                <div className="grid gap-8">
+                    <Card className="shadow-md">
+                        <CardHeader className="pb-2">
+                            <CardTitle>Profile</CardTitle>
+                            <CardDescription>
+                                Manage your profile information
+                            </CardDescription>
+                        </CardHeader>
+                        <form onSubmit={handleUpdateProfile}>
+                            <CardContent className="pt-6">
+                                <div className="space-y-6">
+                                    <div className="space-y-3">
+                                        <label htmlFor="email" className="text-sm font-medium">
+                                            Email
+                                        </label>
+                                        <Input
+                                            id="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            disabled
+                                            className="bg-slate-50"
+                                        />
+                                    </div>
                                 </div>
+                            </CardContent>
+                            <CardFooter className="pt-2 pb-6">
+                                <Button type="submit" disabled className="w-full sm:w-auto">
+                                    Save Changes
+                                </Button>
+                            </CardFooter>
+                        </form>
+                    </Card>
+
+                    <Card className="shadow-md">
+                        <CardHeader className="pb-2">
+                            <CardTitle>Account</CardTitle>
+                            <CardDescription>
+                                Manage your account preferences
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-6 space-y-6">
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <Button 
+                                    variant="outline" 
+                                    onClick={handleSignOut}
+                                    className="w-full sm:w-auto"
+                                >
+                                    Sign Out
+                                </Button>
+                                <Button
+                                    variant="destructive"
+                                    onClick={handleDeleteAccount}
+                                    disabled
+                                    className="w-full sm:w-auto"
+                                >
+                                    Delete Account
+                                </Button>
                             </div>
                         </CardContent>
-                        <CardFooter>
-                            <Button type="submit" disabled>
-                                Save Changes
-                            </Button>
-                        </CardFooter>
-                    </form>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Account</CardTitle>
-                        <CardDescription>
-                            Manage your account preferences
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div>
-                            <Button variant="outline" onClick={() => signOut()}>
-                                Sign Out
-                            </Button>
-                        </div>
-                        <div>
-                            <Button
-                                variant="destructive"
-                                onClick={handleDeleteAccount}
-                                disabled
-                            >
-                                Delete Account
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-        </motion.div>
+                    </Card>
+                </div>
+            </motion.div>
+        </div>
     )
 }

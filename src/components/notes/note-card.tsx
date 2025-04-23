@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 
@@ -29,10 +30,12 @@ interface NoteCardProps {
 
 export default function NoteCard({ note }: NoteCardProps) {
     const { deleteNote, updateNote } = useNotes()
+    const router = useRouter()
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
     const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
 
-    const handleDelete = () => {
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation()
         deleteNote(note.id)
         setIsDeleteDialogOpen(false)
         toast("Note deleted", {
@@ -57,14 +60,32 @@ export default function NoteCard({ note }: NoteCardProps) {
         setIsShareDialogOpen(false)
     }
 
+    const handleCardClick = () => {
+        router.push(`/notes/${note.id}`)
+    }
+
+    const handleShareClick = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        setIsShareDialogOpen(true)
+    }
+
+    const handleDeleteClick = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        setIsDeleteDialogOpen(true)
+    }
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
             whileHover={{ scale: 1.02 }}
+            className="h-full"
         >
-            <Card className="overflow-hidden h-full flex flex-col">
+            <Card 
+                className="overflow-hidden h-full flex flex-col relative cursor-pointer hover:shadow-md transition-shadow duration-200"
+                onClick={handleCardClick}
+            >
                 <CardHeader className="pb-3">
                     <div className="flex justify-between items-center">
                         <CardTitle className="text-lg truncate">
@@ -85,23 +106,33 @@ export default function NoteCard({ note }: NoteCardProps) {
                         {truncateText(note.content, 150)}
                     </p>
                     {note.summary && (
-                        <div className="mt-2 p-2 bg-muted rounded-md text-xs">
+                        <div className="mt-3 p-3 bg-muted rounded-md text-xs">
                             <p className="font-medium">Summary:</p>
                             <p>{truncateText(note.summary, 100)}</p>
                         </div>
                     )}
                 </CardContent>
 
-                <CardFooter className="flex justify-between pt-2 border-t">
+                <CardFooter className="flex justify-between pt-3 pb-3 border-t">
                     <div className="text-xs text-muted-foreground">
                         {formatDate(note.updated_at)}
                     </div>
-                    <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => setIsShareDialogOpen(true)}>
+                    <div className="flex gap-2 z-10" onClick={e => e.stopPropagation()}>
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={handleShareClick}
+                            className="hover:bg-muted"
+                        >
                             <Share2 className="h-4 w-4" />
                             <span className="sr-only">Share</span>
                         </Button>
-                        <Button variant="ghost" size="icon" asChild>
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            asChild
+                            className="hover:bg-muted"
+                        >
                             <Link href={`/notes/${note.id}`}>
                                 <Edit className="h-4 w-4" />
                                 <span className="sr-only">Edit</span>
@@ -110,7 +141,8 @@ export default function NoteCard({ note }: NoteCardProps) {
                         <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => setIsDeleteDialogOpen(true)}
+                            onClick={handleDeleteClick}
+                            className="hover:bg-muted"
                         >
                             <Trash className="h-4 w-4" />
                             <span className="sr-only">Delete</span>
@@ -121,14 +153,14 @@ export default function NoteCard({ note }: NoteCardProps) {
 
             {/* Delete Confirmation Dialog */}
             <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <DialogContent>
+                <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>Delete Note</DialogTitle>
                         <DialogDescription>
                             Are you sure you want to delete this note? This action cannot be undone.
                         </DialogDescription>
                     </DialogHeader>
-                    <DialogFooter>
+                    <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
                         <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
                             Cancel
                         </Button>
@@ -141,7 +173,7 @@ export default function NoteCard({ note }: NoteCardProps) {
 
             {/* Share Dialog */}
             <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
-                <DialogContent>
+                <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>Share Note</DialogTitle>
                         <DialogDescription>
@@ -152,22 +184,22 @@ export default function NoteCard({ note }: NoteCardProps) {
                     </DialogHeader>
 
                     {note.is_public && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-col sm:flex-row items-center gap-2">
                             <Input
                                 readOnly
                                 value={generateShareableUrl(note.id)}
                                 className="flex-1"
                             />
-                            <Button size="sm" onClick={handleCopyShareLink}>
-                                <Copy className="h-4 w-4 mr-1" />
+                            <Button size="sm" className="w-full sm:w-auto" onClick={handleCopyShareLink}>
+                                <Copy className="h-4 w-4 mr-2" />
                                 Copy
                             </Button>
                         </div>
                     )}
 
-                    <DialogFooter>
+                    <DialogFooter className="mt-2">
                         {!note.is_public && (
-                            <Button onClick={handleMakePublic}>
+                            <Button onClick={handleMakePublic} className="w-full sm:w-auto">
                                 Make Public
                             </Button>
                         )}

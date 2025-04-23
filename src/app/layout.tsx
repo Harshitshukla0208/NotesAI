@@ -1,12 +1,10 @@
 // src/app/layout.tsx
-import "./globals.css";
+import './globals.css'
 import { Metadata } from 'next'
 import { AuthProvider } from '@/providers/auth-provider'
 import QueryProvider from '@/providers/query-provider'
 import { ThemeProvider } from '@/providers/theme-provider'
-import Header from '@/components/layout/header'
-import Footer from '@/components/layout/footer'
-import { Toaster } from "@/components/ui/sonner"
+import AppLayout from '@/components/app-layout'
 
 export const metadata: Metadata = {
   title: 'NotesAI - Smart Note Taking App',
@@ -24,12 +22,7 @@ export default function RootLayout({
         <ThemeProvider defaultTheme="system">
           <QueryProvider>
             <AuthProvider>
-              <div className="flex min-h-screen flex-col">
-                <Header />
-                <main className="flex-1">{children}</main>
-                <Toaster />
-                <Footer />
-              </div>
+              <AppLayout>{children}</AppLayout>
             </AuthProvider>
           </QueryProvider>
         </ThemeProvider>
