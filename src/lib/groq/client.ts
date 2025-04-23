@@ -17,11 +17,11 @@ export async function summarizeContent(text: string): Promise<string> {
                 messages: [
                     {
                         role: 'system',
-                        content: 'You are a helpful assistant that summarizes text in a concise, informative way.'
+                        content: 'You are a helpful assistant that summarizes text in a concise, informative way, Do not tell us what you are doing just create the summary only.'
                     },
                     {
                         role: 'user',
-                        content: `Please summarize the following text in 2-3 sentences:\n\n${text}`
+                        content: `Please summarize the following text in 2-3 sentences, Do not tell us what you are doing just create the summary only:\n\n${text}`
                     }
                 ],
                 max_tokens: 150
