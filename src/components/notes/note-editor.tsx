@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { useNotes } from '@/hooks/use-notes'
+import { useNotes, useNoteById  } from '@/hooks/use-notes'
 import { useSummarize } from '@/hooks/use-summarize'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
@@ -44,7 +44,7 @@ export default function NoteEditor({
     const [editorTab, setEditorTab] = useState('edit')
 
     const isEditMode = !!noteId
-    const { data: existingNote, isLoading } = useNotes().getNoteById(noteId || '')
+    const { data: existingNote, isLoading } = useNoteById(noteId || '')
 
     useEffect(() => {
         if (isEditMode && existingNote) {

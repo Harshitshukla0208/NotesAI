@@ -8,6 +8,7 @@ import { Search, FileText, Code } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Toggle } from '@/components/ui/toggle'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 
 export default function NoteList() {
     const { notes, isLoading } = useNotes()
@@ -48,7 +49,9 @@ export default function NoteList() {
                     Create your first note to get started
                 </p>
                 <Button className="mt-4" asChild>
-                    <a href="/notes/new">Create a note</a>
+                    <Button className="mt-4" asChild>
+                        <Link href="/notes/new">Create a note</Link>
+                    </Button>
                 </Button>
             </div>
         )

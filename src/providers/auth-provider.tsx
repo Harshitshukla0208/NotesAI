@@ -3,15 +3,15 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
-import type { User } from '@supabase/supabase-js'
+import type { User, AuthError } from '@supabase/supabase-js'
 
 type AuthContextType = {
     user: User | null
     loading: boolean
-    signIn: (email: string, password: string) => Promise<{ error: any }>
-    signUp: (email: string, password: string) => Promise<{ error: any }>
-    signInWithGoogle: () => Promise<{ error: any }>
-    signInWithGitHub: () => Promise<{ error: any }>
+    signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
+    signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>
+    signInWithGoogle: () => Promise<{ error: AuthError | null }>
+    signInWithGitHub: () => Promise<{ error: AuthError | null }>
     signOut: () => Promise<void>
 }
 
@@ -28,14 +28,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setUser(session?.user ?? null)
                 setLoading(false)
 
-                // Redirect after successful authentication events
                 if (event === 'SIGNED_IN' && session) {
                     router.push('/dashboard')
                 }
             }
         )
 
-        // Initial session check
         supabase.auth.getSession().then(({ data: { session } }) => {
             setUser(session?.user ?? null)
             setLoading(false)
@@ -46,13 +44,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [router])
 
-    const signIn = async (email: string, password: string) => {
+    const signIn = async (email: string, password: string): Promise<{ error: AuthError | null }> => {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (!error) router.push('/dashboard')
         return { error }
     }
 
-    const signUp = async (email: string, password: string) => {
+    const signUp = async (email: string, password: string): Promise<{ error: AuthError | null }> => {
         const { error } = await supabase.auth.signUp({
             email,
             password,
@@ -64,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error }
     }
 
-    const signInWithGoogle = async () => {
+    const signInWithGoogle = async (): Promise<{ error: AuthError | null }> => {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
@@ -74,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error }
     }
 
-    const signInWithGitHub = async () => {
+    const signInWithGitHub = async (): Promise<{ error: AuthError | null }> => {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'github',
             options: {
@@ -84,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error }
     }
 
-    const signOut = async () => {
+    const signOut = async (): Promise<void> => {
         await supabase.auth.signOut()
         router.push('/')
     }

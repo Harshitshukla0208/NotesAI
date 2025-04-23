@@ -41,12 +41,14 @@ export default function Settings() {
             toast("Signed out successfully", {
                 description: "You have been signed out of your account",
             })
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as { message?: string }
             toast("Authentication error", {
-                description: error?.message || "Failed to sign out",
+                description: err?.message || "Failed to sign out",
             })
         }
     }
+
 
     if (loading || !user) return null
 
@@ -100,8 +102,8 @@ export default function Settings() {
                         </CardHeader>
                         <CardContent className="pt-6 space-y-6">
                             <div className="flex flex-col sm:flex-row gap-4">
-                                <Button 
-                                    variant="outline" 
+                                <Button
+                                    variant="outline"
                                     onClick={handleSignOut}
                                     className="w-full sm:w-auto"
                                 >

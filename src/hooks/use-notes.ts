@@ -20,16 +20,16 @@ export function useNotes() {
         return data || []
     }
 
-    const fetchNote = async (id: string): Promise<Note | null> => {
-        const { data, error } = await supabase
-            .from('notes')
-            .select('*')
-            .eq('id', id)
-            .single()
+    // const fetchNote = async (id: string): Promise<Note | null> => {
+    //     const { data, error } = await supabase
+    //         .from('notes')
+    //         .select('*')
+    //         .eq('id', id)
+    //         .single()
 
-        if (error) throw error
-        return data
-    }
+    //     if (error) throw error
+    //     return data
+    // }
 
     const createNote = async (note: Partial<Note>): Promise<Note> => {
         if (!user) throw new Error('User not authenticated')
@@ -105,20 +105,30 @@ export function useNotes() {
         }
     })
 
-    const getNoteById = (id: string) => {
-        return useQuery({
-            queryKey: ['note', id],
-            queryFn: () => fetchNote(id)
-        })
-    }
-
     return {
         notes: notesQuery.data || [],
         isLoading: notesQuery.isLoading,
         error: notesQuery.error,
-        getNoteById,
         createNote: createNoteMutation.mutate,
         updateNote: updateNoteMutation.mutate,
         deleteNote: deleteNoteMutation.mutate,
     }
+}
+
+// ✅ VALID HOOK: useNoteById
+export function useNoteById(id: string) {
+    return useQuery({
+        queryKey: ['note', id],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from('notes')
+                .select('*')
+                .eq('id', id)
+                .single()
+
+            if (error) throw error
+            return data
+        },
+        enabled: !!id
+    })
 }

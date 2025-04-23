@@ -1,51 +1,53 @@
 'use client'
-import { use, useState, useEffect } from 'react'
+
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/providers/auth-provider'
-import { useNotes } from '@/hooks/use-notes'
+import { useNoteById, useNotes } from '@/hooks/use-notes'
 import NoteEditor from '@/components/notes/note-editor'
 import NoteSummary from '@/components/notes/note-summary'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import React from 'react'
 
-// Define proper types for the async params
+// Update the PageParams type to match what Next.js 15 expects
 type PageParams = {
-    params: Promise<{
-        id: string
-    }>
+    params: Promise<{ id: string }>  // Update type to reflect Promise
 }
 
 export default function EditNote({ params }: PageParams) {
-    // Unwrap the params using React.use()
-    const { id } = use(params)
+    // Unwrap params with React.use()
+    const { id } = React.use(params)
+
     const { user, loading: authLoading } = useAuth()
     const router = useRouter()
-    const { getNoteById, updateNote } = useNotes()
-    const { data: note, isLoading: noteLoading, error } = getNoteById(id)
+    const { updateNote } = useNotes()
+    const { data: note, isLoading: noteLoading, error } = useNoteById(id)
+
     const [currentContent, setCurrentContent] = useState('')
     const [currentSummary, setCurrentSummary] = useState('')
-    
+
     useEffect(() => {
         if (note) {
             setCurrentContent(note.content || '')
             setCurrentSummary(note.summary || '')
         }
     }, [note])
-    
+
     useEffect(() => {
         if (!authLoading && !user) {
             router.push('/auth/signin')
         }
     }, [user, authLoading, router])
-    
+
     const handleSummaryGenerated = (summary: string) => {
         setCurrentSummary(summary)
         if (note?.id) {
             updateNote({ id: note.id, summary })
         }
     }
-    
+
     if (authLoading || noteLoading || !user) {
         return (
             <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
@@ -56,10 +58,10 @@ export default function EditNote({ params }: PageParams) {
             </div>
         )
     }
-    
+
     if (error || !note) {
         return (
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="max-w-md mx-auto text-center py-12 px-4"
@@ -67,7 +69,7 @@ export default function EditNote({ params }: PageParams) {
                 <div className="bg-card rounded-lg shadow-sm p-6">
                     <h2 className="text-xl font-medium">Note not found</h2>
                     <p className="mt-2 text-muted-foreground">
-                        The note you are looking for doesn't exist or you don't have permission to view it.
+                        The note you are looking for does not exist or you do not have permission to view it.
                     </p>
                     <button
                         onClick={() => router.push('/dashboard')}
@@ -79,9 +81,9 @@ export default function EditNote({ params }: PageParams) {
             </motion.div>
         )
     }
-    
+
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6"
@@ -89,8 +91,8 @@ export default function EditNote({ params }: PageParams) {
             <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b">
                     <div>
-                        <Link 
-                            href="/dashboard" 
+                        <Link
+                            href="/dashboard"
                             className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-2"
                         >
                             <ArrowLeft className="mr-1 h-3.5 w-3.5" />
@@ -101,7 +103,7 @@ export default function EditNote({ params }: PageParams) {
                         </h1>
                     </div>
                 </div>
-                
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                     <div className="lg:col-span-2">
                         <div className="bg-card rounded-lg shadow-sm p-4 sm:p-6">

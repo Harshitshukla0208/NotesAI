@@ -24,7 +24,7 @@ export default function AuthCallback() {
         <div className="flex items-center justify-center min-h-screen">
             <div className="text-center">
                 <h2 className="text-xl font-semibold">Finalizing authentication...</h2>
-                <p className="text-muted-foreground mt-2">You'll be redirected shortly.</p>
+                <p className="text-muted-foreground mt-2">You will be redirected shortly.</p>
             </div>
         </div>
     )

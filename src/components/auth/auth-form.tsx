@@ -43,12 +43,16 @@ export default function AuthForm({ mode }: AuthFormProps) {
                     description: "Welcome back!",
                 })
             }
-        } catch (error: any) {
-            toast("Authentication error", {
-                description: error?.message || "Failed to authenticate",
-            })
-        } finally {
-            setLoading(false)
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                toast("Authentication error", {
+                    description: error.message,
+                })
+            } else {
+                toast("Authentication error", {
+                    description: "Failed to authenticate",
+                })
+            }
         }
     }
 
@@ -60,10 +64,16 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 throw error
             }
             // No need for toast here as redirect will happen
-        } catch (error: any) {
-            toast("Google authentication error", {
-                description: error?.message || "Failed to authenticate with Google",
-            })
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                toast("Google authentication error", {
+                    description: error.message,
+                })
+            } else {
+                toast("Google authentication error", {
+                    description: "Failed to authenticate with Google",
+                })
+            }
             setGoogleLoading(false)
         }
     }
@@ -76,10 +86,16 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 throw error
             }
             // No need for toast here as redirect will happen
-        } catch (error: any) {
-            toast("GitHub authentication error", {
-                description: error?.message || "Failed to authenticate with GitHub",
-            })
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                toast("GitHub authentication error", {
+                    description: error.message,
+                })
+            } else {
+                toast("GitHub authentication error", {
+                    description: "Failed to authenticate with GitHub",
+                })
+            }
             setGithubLoading(false)
         }
     }
@@ -104,8 +120,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 </div>
 
                 <div className="flex flex-col space-y-4">
-                    <Button 
-                        variant="outline" 
+                    <Button
+                        variant="outline"
                         onClick={handleGoogleSignIn}
                         disabled={googleLoading}
                         className="w-full flex items-center justify-center gap-2 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-300"
@@ -138,8 +154,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
                         )}
                     </Button>
 
-                    <Button 
-                        variant="outline" 
+                    <Button
+                        variant="outline"
                         onClick={handleGitHubSignIn}
                         disabled={githubLoading}
                         className="w-full flex items-center justify-center gap-2 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-300"
@@ -210,9 +226,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
                         </div>
                     </div>
 
-                    <Button 
-                        type="submit" 
-                        className="w-full" 
+                    <Button
+                        type="submit"
+                        className="w-full"
                         disabled={loading}
                     >
                         {loading

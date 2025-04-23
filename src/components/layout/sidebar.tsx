@@ -8,9 +8,7 @@ import {
     BookText,
     Plus,
     Home,
-    Settings,
-    Menu,
-    X
+    Settings
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
